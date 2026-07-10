@@ -1,0 +1,7 @@
+# Ignore the Android mobile app directory in the web simulator repository
+android-app/
+
+# Node modules and build files
+node_modules/
+.DS_Store
+*.local
