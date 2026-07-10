@@ -332,16 +332,41 @@
     }
   }
 
-  let notifCount = 0,
-    dnd = false,
-    battLevel = 72,
-    charging = false,
-    focusMode = false,
-    bedtimeMode = false,
-    happyDay = false;
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('widget')) {
+    document.body.classList.add('widget-mode');
+  }
 
-  let cursorTracking = false;
-  let weatherType = 'clear';
+  // Parse state variables from URL parameters (allowing configuration from widget URLs)
+  const queryMood = urlParams.get('mood');
+  let notifCount = parseInt(urlParams.get('notif') || '0', 10);
+  let dnd = urlParams.get('dnd') === 'true';
+  let battLevel = parseInt(urlParams.get('battery') || '72', 10);
+  let charging = urlParams.get('charging') === 'true';
+  let focusMode = urlParams.get('focus') === 'true';
+  let bedtimeMode = urlParams.get('bedtime') === 'true';
+  let happyDay = urlParams.get('happy') === 'true';
+
+  if (queryMood === 'idle') {
+    notifCount = 0; dnd = false; battLevel = 72; charging = false; focusMode = false; bedtimeMode = false; happyDay = false;
+  } else if (queryMood === 'alert') {
+    notifCount = 3; dnd = false; battLevel = 72; charging = false; focusMode = false; bedtimeMode = false; happyDay = false;
+  } else if (queryMood === 'dnd') {
+    notifCount = 0; dnd = true; battLevel = 72; charging = false; focusMode = false; bedtimeMode = false; happyDay = false;
+  } else if (queryMood === 'battery') {
+    notifCount = 0; dnd = false; battLevel = 10; charging = false; focusMode = false; bedtimeMode = false; happyDay = false;
+  } else if (queryMood === 'charging') {
+    notifCount = 0; dnd = false; battLevel = 72; charging = true; focusMode = false; bedtimeMode = false; happyDay = false;
+  } else if (queryMood === 'busy') {
+    notifCount = 0; dnd = false; battLevel = 72; charging = false; focusMode = true; bedtimeMode = false; happyDay = false;
+  } else if (queryMood === 'sleepy') {
+    notifCount = 0; dnd = false; battLevel = 72; charging = false; focusMode = false; bedtimeMode = true; happyDay = false;
+  } else if (queryMood === 'happy') {
+    notifCount = 0; dnd = false; battLevel = 72; charging = false; focusMode = false; bedtimeMode = false; happyDay = true;
+  }
+
+  let cursorTracking = urlParams.get('follow') === 'true';
+  let weatherType = urlParams.get('weather') || 'clear';
   let particles = [];
 
   function initParticles() {
@@ -887,6 +912,35 @@
     weatherType = weatherSelect.value;
     initParticles();
   });
+
+  // On startup, sync UI switches and select drop-downs to match values parsed from URL search
+  notifCountEl.textContent = notifCount;
+  dndSwitch.classList.toggle('on', dnd);
+  dndSwitch.setAttribute('aria-checked', String(dnd));
+  battRange.value = battLevel;
+  battVal.textContent = battLevel + '%';
+  chargeSwitch.classList.toggle('on', charging);
+  chargeSwitch.setAttribute('aria-checked', String(charging));
+  focusSwitch.classList.toggle('on', focusMode);
+  focusSwitch.setAttribute('aria-checked', String(focusMode));
+  bedtimeSwitch.classList.toggle('on', bedtimeMode);
+  bedtimeSwitch.setAttribute('aria-checked', String(bedtimeMode));
+  happySwitch.classList.toggle('on', happyDay);
+  happySwitch.setAttribute('aria-checked', String(happyDay));
+  followSwitch.classList.toggle('on', cursorTracking);
+  followSwitch.setAttribute('aria-checked', String(cursorTracking));
+
+  const initialShape = urlParams.get('shape') || 'square';
+  shapeSelect.value = initialShape;
+  gridEl.classList.remove('shape-circle', 'shape-plus');
+  if (initialShape === 'circle') {
+    gridEl.classList.add('shape-circle');
+  } else if (initialShape === 'plus') {
+    gridEl.classList.add('shape-plus');
+  }
+
+  weatherSelect.value = weatherType;
+  initParticles();
 
   paint();
   idleLoop();

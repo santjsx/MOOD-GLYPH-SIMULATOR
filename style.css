@@ -470,3 +470,49 @@ input[type='range'] {
     animation: none !important;
   }
 }
+
+/* Widget Mode (WebView Widget embed configuration) */
+body.widget-mode {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+body.widget-mode .stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+
+body.widget-mode .panel {
+  display: none !important;
+}
+
+body.widget-mode .widget-frame {
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+body.widget-mode .status-line {
+  display: none !important;
+}
+
+body.widget-mode .widget {
+  width: 94vw;
+  height: 94vw;
+  max-width: 94vh;
+  max-height: 94vh;
+  border-radius: 18%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
