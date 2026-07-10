@@ -653,10 +653,10 @@
   bi(charging) = 1, 4,           <span class="${
     state === 'charging' ? 'active' : ''
   }">${state === 'charging' ? '← matched' : ''}</span>
-  gv(focus) = 1 | si(setting, global, zen_mode) = 1, 5, <span class="${
+  gv(focus) = 1 | setting(global, zen_mode) = 1, 5, <span class="${
     state === 'busy' ? 'active' : ''
   }">${state === 'busy' ? '← matched' : ''}</span>
-  gv(bedtime) = 1 | si(setting, global, zen_mode) = 3, 6, <span class="${
+  gv(bedtime) = 1 | setting(global, zen_mode) = 3, 6, <span class="${
     state === 'sleepy' ? 'active' : ''
   }">${state === 'sleepy' ? '← matched' : ''}</span>
   gv(happy) = 1, 7,              <span class="${
