@@ -41,7 +41,7 @@ module.exports = (req, res) => {
   }
 
   // Draw list of lit dots
-  let litDots = [];
+  let litMap = new Set();
 
   for (let r = 0; r < GRID_ROWS; r++) {
     for (let c = 0; c < GRID_COLS; c++) {
@@ -128,26 +128,99 @@ module.exports = (req, res) => {
       }
 
       if (lit) {
-        litDots.push({ r, c });
+        litMap.add(`${r},${c}`);
       }
     }
   }
 
-  // Generate lightweight, 100% Android-compatible SVG
-  const color = STATE_COLORS[mood] || STATE_COLORS.idle;
-  let svg = `<svg viewBox="0 0 64 64" width="512" height="512" xmlns="http://www.w3.org/2000/svg">`;
-  
-  // Base card background (using standard SVG rounded rect attributes)
-  svg += `<rect width="64" height="64" fill="#0b0c10" rx="3" ry="3"/>`;
+  // --- Generate 32-bit BMP Image (256x256 resolution) ---
+  const width = 256;
+  const height = 256;
+  const pixelDataSize = width * height * 4;
+  const fileSize = 54 + pixelDataSize;
 
-  // Draw lit pixels using standard XML rect attributes (no CSS style drop-shadows or patterns)
-  litDots.forEach(dot => {
-    svg += `<rect x="${dot.c + 0.1}" y="${dot.r + 0.1}" width="0.8" height="0.8" rx="0.15" ry="0.15" fill="${color}"/>`;
-  });
+  const buffer = Buffer.alloc(fileSize);
 
-  svg += `</svg>`;
+  // BMP Header
+  buffer.write('BM', 0);
+  buffer.writeUInt32LE(fileSize, 2);
+  buffer.writeUInt16LE(0, 6);
+  buffer.writeUInt16LE(0, 8);
+  buffer.writeUInt32LE(54, 10);
 
-  res.setHeader('Content-Type', 'image/svg+xml');
+  // DIB Header
+  buffer.writeUInt32LE(40, 14);
+  buffer.writeInt32LE(width, 18);
+  buffer.writeInt32LE(height, 22);
+  buffer.writeUInt16LE(1, 26);
+  buffer.writeUInt16LE(32, 28); // 32-bit for ARGB transparency
+  buffer.writeUInt32LE(0, 30);
+  buffer.writeUInt32LE(pixelDataSize, 34);
+  buffer.writeInt32LE(2835, 38);
+  buffer.writeInt32LE(2835, 42);
+  buffer.writeUInt32LE(0, 46);
+  buffer.writeUInt32LE(0, 50);
+
+  const moodColor = STATE_COLORS[mood] || STATE_COLORS.idle;
+  const r_val = parseInt(moodColor.substring(1, 3), 16);
+  const g_val = parseInt(moodColor.substring(3, 5), 16);
+  const b_val = parseInt(moodColor.substring(5, 7), 16);
+
+  // Colors
+  const bg_r = 0x0b, bg_g = 0x0c, bg_b = 0x10;
+  const dot_r = 0x14, dot_g = 0x17, dot_b = 0x1d;
+
+  let offset = 54;
+  const cornerRadius = 14;
+
+  // BMP writes bottom-to-top
+  for (let y = height - 1; y >= 0; y--) {
+    const gr = Math.floor(y / 4);
+    const dy = y % 4;
+
+    for (let x = 0; x < width; x++) {
+      const gc = Math.floor(x / 4);
+      const dx = x % 4;
+
+      let r_p = bg_r, g_p = bg_g, b_p = bg_b, a_p = 255;
+
+      // Check card rounded corner transparency
+      let isTransparent = false;
+      if (x < cornerRadius && y < cornerRadius) {
+        if (Math.pow(x - cornerRadius, 2) + Math.pow(y - cornerRadius, 2) > Math.pow(cornerRadius, 2)) isTransparent = true;
+      } else if (x >= width - cornerRadius && y < cornerRadius) {
+        if (Math.pow(x - (width - 1 - cornerRadius), 2) + Math.pow(y - cornerRadius, 2) > Math.pow(cornerRadius, 2)) isTransparent = true;
+      } else if (x < cornerRadius && y >= height - cornerRadius) {
+        if (Math.pow(x - cornerRadius, 2) + Math.pow(y - (height - 1 - cornerRadius), 2) > Math.pow(cornerRadius, 2)) isTransparent = true;
+      } else if (x >= width - cornerRadius && y >= height - cornerRadius) {
+        if (Math.pow(x - (width - 1 - cornerRadius), 2) + Math.pow(y - (height - 1 - cornerRadius), 2) > Math.pow(cornerRadius, 2)) isTransparent = true;
+      }
+
+      if (isTransparent) {
+        r_p = 0; g_p = 0; b_p = 0; a_p = 0; // transparent
+      } else {
+        // Draw grid spacer borders
+        if (dy === 3 || dx === 3) {
+          r_p = bg_r; g_p = bg_g; b_p = bg_b;
+        } else {
+          if (litMap.has(`${gr},${gc}`)) {
+            r_p = r_val; g_p = g_val; b_p = b_val;
+          } else {
+            r_p = dot_r; g_p = dot_g; b_p = dot_b;
+          }
+        }
+      }
+
+      // Write pixel bytes (BGRA format)
+      buffer[offset] = b_p;
+      buffer[offset + 1] = g_p;
+      buffer[offset + 2] = r_p;
+      buffer[offset + 3] = a_p;
+      offset += 4;
+    }
+  }
+
+  res.setHeader('Content-Type', 'image/bmp');
   res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate');
-  res.send(svg);
+  res.send(buffer);
 };
