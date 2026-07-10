@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoExpressive — Mood Glyph</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="widget-frame">
+    <div class="widget" id="widget">
+      <div class="badge" id="badge">0</div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="status-line">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusLabel">IDLE</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>MOOD GLYPH — SIMULATOR</h2>
+    <p class="sub">Idle now blinks, glances around, and does the odd double-blink or curious widen on its own. Emotional states get their own ambient motion (pulse, breathe, droop, bounce). Toggle inputs below the way notifications, DND, and battery would drive it on-device.</p>
+
+    <div class="presets-container">
+      <span class="presets-label">Preset Moods</span>
+      <div class="presets-grid">
+        <button type="button" class="preset-btn" data-mood="idle">Idle</button>
+        <button type="button" class="preset-btn" data-mood="alert">Alert</button>
+        <button type="button" class="preset-btn" data-mood="dnd">DND</button>
+        <button type="button" class="preset-btn" data-mood="battery">Low Battery</button>
+        <button type="button" class="preset-btn" data-mood="charging">Charging</button>
+        <button type="button" class="preset-btn" data-mood="busy">Busy</button>
+        <button type="button" class="preset-btn" data-mood="sleepy">Sleepy</button>
+        <button type="button" class="preset-btn" data-mood="happy">Happy</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="notifStepper">Notifications</label>
+        <span class="hint">$ni(count)$</span>
+      </div>
+      <div class="stepper" id="notifStepper">
+        <button type="button" data-dir="-1" aria-label="Decrease notification count">−</button>
+        <span class="count" id="notifCount">0</span>
+        <button type="button" data-dir="1" aria-label="Increase notification count">+</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="dndSwitch">Do Not Disturb</label>
+        <span class="hint">$si(ringer)$ = SILENT</span>
+      </div>
+      <button class="switch" id="dndSwitch" role="switch" aria-checked="false" aria-label="Toggle Do Not Disturb"></button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="battRange">Battery level</label>
+        <span class="hint">$bi(level)$</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <input type="range" id="battRange" min="1" max="100" value="72">
+        <span class="battery-val" id="battVal">72%</span>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="chargeSwitch">Charging</label>
+        <span class="hint">$bi(charging)$</span>
+      </div>
+      <button class="switch" id="chargeSwitch" role="switch" aria-checked="false" aria-label="Toggle charging"></button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="focusSwitch">Focus Mode (Busy)</label>
+        <span class="hint">$si(focus)$</span>
+      </div>
+      <button class="switch" id="focusSwitch" role="switch" aria-checked="false" aria-label="Toggle Focus Mode"></button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="bedtimeSwitch">Bedtime Mode (Sleepy)</label>
+        <span class="hint">$si(bedtime)$</span>
+      </div>
+      <button class="switch" id="bedtimeSwitch" role="switch" aria-checked="false" aria-label="Toggle Bedtime Mode"></button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="happySwitch">Happy Day</label>
+        <span class="hint">Mood overrides</span>
+      </div>
+      <button class="switch" id="happySwitch" role="switch" aria-checked="false" aria-label="Toggle Happy Day"></button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="followSwitch">Cursor Tracking</label>
+        <span class="hint">Eyes track pointer</span>
+      </div>
+      <button class="switch" id="followSwitch" role="switch" aria-checked="false" aria-label="Toggle Cursor Tracking"></button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="shapeSelect">LED Shape</label>
+        <span class="hint">Matrix dot design</span>
+      </div>
+      <select id="shapeSelect" class="select-input">
+        <option value="square">Square Pills</option>
+        <option value="circle">Circular Dots</option>
+        <option value="plus">Digital Crosses</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="weatherSelect">Weather Overlay</label>
+        <span class="hint">LED background effect</span>
+      </div>
+      <select id="weatherSelect" class="select-input">
+        <option value="clear">Clear (None)</option>
+        <option value="rain">Rainy</option>
+        <option value="snow">Snowy</option>
+      </select>
+    </div>
+
+    <div class="formula" id="formulaBox"></div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
