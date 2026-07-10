@@ -133,20 +133,16 @@ module.exports = (req, res) => {
     }
   }
 
-  // Generate lightweight SVG
+  // Generate lightweight, 100% Android-compatible SVG
   const color = STATE_COLORS[mood] || STATE_COLORS.idle;
-  let svg = `<svg viewBox="0 0 64 64" width="512" height="512" xmlns="http://www.w3.org/2000/svg" style="background:#0b0c10; border-radius: 12px;">`;
-  svg += `<defs>
-    <pattern id="bgGrid" width="1" height="1" patternUnits="userSpaceOnUse">
-      <rect x="0.1" y="0.1" width="0.8" height="0.8" rx="0.1" fill="#14171d"/>
-    </pattern>
-  </defs>`;
-  // Fill background grid pattern
-  svg += `<rect width="64" height="64" fill="url(#bgGrid)"/>`;
+  let svg = `<svg viewBox="0 0 64 64" width="512" height="512" xmlns="http://www.w3.org/2000/svg">`;
+  
+  // Base card background (using standard SVG rounded rect attributes)
+  svg += `<rect width="64" height="64" fill="#0b0c10" rx="3" ry="3"/>`;
 
-  // Draw lit pixels
+  // Draw lit pixels using standard XML rect attributes (no CSS style drop-shadows or patterns)
   litDots.forEach(dot => {
-    svg += `<rect x="${dot.c + 0.1}" y="${dot.r + 0.1}" width="0.8" height="0.8" rx="0.1" fill="${color}" style="filter: drop-shadow(0 0 1px ${color});"/>`;
+    svg += `<rect x="${dot.c + 0.1}" y="${dot.r + 0.1}" width="0.8" height="0.8" rx="0.15" ry="0.15" fill="${color}"/>`;
   });
 
   svg += `</svg>`;
